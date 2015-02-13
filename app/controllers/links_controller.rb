@@ -1,6 +1,7 @@
 class LinksController < ApplicationController
   before_action :set_link, only: [:show, :edit, :update, :destroy, :upvote, :downvote]
   before_action :authenticate_user!, :except => [:index, :show]
+  before_action :authorized_user, only: [:edit, :update, :destroy]
 
   # GET /links
   # GET /links.json
@@ -83,5 +84,11 @@ class LinksController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def link_params
       params.require(:link).permit(:title, :url)
+    end
+
+    def authorized_user 
+      link = set_link
+      is_author = current_user.links.include? link          
+      redirect_to link, notice: "Not authorized to edit this link" unless is_author
     end
 end
