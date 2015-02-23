@@ -1,6 +1,7 @@
 class CommentsController < ApplicationController
   before_action :set_comment, only: [:show, :edit, :update, :destroy]
-
+  before_action :authenticate_user!, only: :create
+  before_action :authorized_user, only: :destroy
   # # GET /comments
   # # GET /comments.json
   # def index
@@ -76,5 +77,11 @@ class CommentsController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def comment_params
       params.require(:comment).permit(:link_id, :body, :user_id)
+    end
+
+    def authorized_user
+      comment = set_comment       
+      is_author = current_user == comment.user        
+      redirect_to comment.link, notice: "Not authorized" unless is_author
     end
 end
